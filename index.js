@@ -2,19 +2,24 @@ const express = require('express');
 const axios = require('axios');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 5000;
 
-app.get('/trivia', async (req, res) => {
+app.get('/advice', async (req, res) => {
   try {
-    const response = await axios.get('https://opentdb.com/api.php?amount=1&type=multiple');
-    const triviaData = response.data.results[0];
-    res.json(triviaData);
+    const response = await axios.get('https://api.adviceslip.com/advice');
+    const advice = response.data.slip;
+
+    res.json({
+      advice: advice.advice
+    });
   } catch (error) {
-    console.error('Error fetching trivia:', error);
-    res.status(500).json({ error: 'Failed to fetch trivia' });
+    const errorMessage = error.response?.data.message || error.message;
+    res.status(500).json({
+      error: 'An error occurred: ' + errorMessage
+    });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Trivia API listening at http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
